@@ -43,7 +43,7 @@ var UserSchema = new mongoose.Schema({
   },
   coinId: {
     type: Number,
-    default: '2000',
+    default: '4000',
     required: true ,
     index: {unique: true}
   },
