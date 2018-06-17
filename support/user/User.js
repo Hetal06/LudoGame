@@ -29,23 +29,23 @@ var UserSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
-  spinId: {
-    type: String,
-    default: "0",
-    required: true,
-    index: { unique: true }
-  },
-  videoId: {
-    type: String,
-    default: "0",
-    required: true,
-    index: { unique: true }
-  },
+  // spinId: {
+  //   type: String,
+  //   default: "0",
+  //   required: true,
+  //   index: { unique: true }
+  // },
+  // videoId: {
+  //   type: String,
+  //   default: "0",
+  //   required: true,
+  //   index: { unique: true }
+  // },
   coinId: {
     type: Number,
     default: "4000",
-    required: true,
-    index: { unique: true }
+    required: true
+    // index: { unique: true }
   },
   Created_date: {
     type: Date,
