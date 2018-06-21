@@ -12,7 +12,7 @@ router.use(bodyParser.json());
 
 router.post("/register", function(req, res) {
   var hashedPassword = bcrypt.hashSync(req.body.password, 8);
-
+  console.log("register api call",hashedPassword);
   User.create(
     {
       userName: req.body.userName,
@@ -37,6 +37,14 @@ router.post("/register", function(req, res) {
       res.status(200).send({ auth: true, token: token });
     }
   );
+});
+
+router.get("/getAll", function(req, res) {
+User.find({}, function(err, register) {
+  if (err)
+    res.send(err);
+  res.json(register);
+});
 });
 
 router.post("/login", function(req, res) {
