@@ -13,14 +13,14 @@ module.exports ={
           "port"		: 27017,
           "dbName"	: 'LudoGame',
           "authDb"	: 'admin',
-          "url"		  : 'mongodb://localhost:27017/meandemo',
+          "url"		  : 'mongodb://localhost:27017/Ludo',
           "host"    : 'localhost',
 
         },
-  "server": {       //Server Configuration
-          // "name":"Venus Stock Manager",
-          "port":4000
-        },
+  // "server": {       //Server Configuration
+  //         // "name":"Venus Stock Manager",
+  //         "port":4000
+  //       },
   "token": {
           "secret": "ludogamesecretkey"
         }
