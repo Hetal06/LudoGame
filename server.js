@@ -6,6 +6,7 @@ var FacebookTokenStrategy = require('passport-facebook-token');
 
 mongoose.Promise = global.Promise;
 mongoose.connect("mongodb://localhost/Ludo");
+mongoose.connect("mongodb://ludogame:ludogame123@ds235840.mlab.com:35840/myfirstdb");
 
 passport.use(new FacebookTokenStrategy({
   clientID: "FACEBOOK_APP_ID",
