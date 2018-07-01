@@ -1,13 +1,14 @@
 const express = require('express');
       app = express(),
-      https=require("https").Server(app),
+      port = process.env.PORT || 3000,
+      // https=require("https").Server(app),
       fs = require('fs'),
       db = require('./db'),
       mongoose = require("mongoose"),
       passport = require('passport'),
       bodyParser = require('body-parser'),
       FacebookTokenStrategy = require('passport-facebook-token'),
-      io=require("socket.io")(https);
+      // io=require("socket.io")(https);
       
       app.use(bodyParser.urlencoded({ extended: true }));
       app.use(bodyParser.json());
@@ -39,33 +40,33 @@ app.use('/api/auth', AuthController);
 
 
 module.exports = app;
-//Routing Request : http://localhost:port/
-app.get('/',function(request,response){
-  //Telling Browser That The File Provided Is A HTML File
-  response.writeHead(200,{"Content-Type":"text/html"});
-  //Passing HTML To Browser
-  response.write(fs.readFileSync("./public/index.html"));
-  //Ending Response
-  response.end();
-})
-//Routing To Public Folder For Any Static Context
-app.use(express.static(__dirname + '/public'));
-// var io = require('socket.io')(https);
-io.sockets.on("connection",function(socket){
-    socket.emit("Start_Chat");
-    //On Event Registar_Name
-    socket.on("Register_Name",function(data){
-       io.sockets.emit("r_name","<strong>"+data+"</strong> Has Joined The Chat");
-       //Now Listening To A Chat Message
-       socket.on("Send_msg",function(data){
-       io.sockets.emit("msg",data);
-       //Now Listening To A Chat Message
-    })
-    })
-  })
+// //Routing Request : http://localhost:port/
+// app.get('/',function(request,response){
+//   //Telling Browser That The File Provided Is A HTML File
+//   response.writeHead(200,{"Content-Type":"text/html"});
+//   //Passing HTML To Browser
+//   response.write(fs.readFileSync("./public/index.html"));
+//   //Ending Response
+//   response.end();
+// })
+// //Routing To Public Folder For Any Static Context
+// app.use(express.static(__dirname + '/public'));
+// // var io = require('socket.io')(https);
+// io.sockets.on("connection",function(socket){
+//     socket.emit("Start_Chat");
+//     //On Event Registar_Name
+//     socket.on("Register_Name",function(data){
+//        io.sockets.emit("r_name","<strong>"+data+"</strong> Has Joined The Chat");
+//        //Now Listening To A Chat Message
+//        socket.on("Send_msg",function(data){
+//        io.sockets.emit("msg",data);
+//        //Now Listening To A Chat Message
+//     })
+//     })
+//   })
 
 
-https.listen(3000, function() {
-	console.log("Express server listening on port : 3000" );
+app.listen(port, function() {
+	console.log("Express server listening on port : "+port );
 });
 
