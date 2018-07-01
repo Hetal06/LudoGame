@@ -14,7 +14,8 @@ const express = require('express');
 
 mongoose.Promise = global.Promise;
 // mongoose.connect("mongodb://localhost/Ludo");
-mongoose.connect("mongodb://ludogame:ludogame123@ds235840.mlab.com:35840/myfirstdb");
+// mongoose.connect("mongodb://ludogame:ludogame123@ds235840.mlab.com:35840/myfirstdb");
+mongoose.connect("mongodb://db_ludo:ludo123@ds125021.mlab.com:25021/ludogame");
 
 passport.use(new FacebookTokenStrategy({
   clientID: "FACEBOOK_APP_ID",
