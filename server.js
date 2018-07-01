@@ -1,12 +1,20 @@
-const app = require("./app");
-port = process.env.PORT || 3000,
-mongoose = require("mongoose");
-const passport = require('passport');
-var FacebookTokenStrategy = require('passport-facebook-token');
+const express = require('express');
+      app = express(),
+      http=require("http").Server(app),
+      fs = require('fs'),
+      db = require('./db'),
+      mongoose = require("mongoose"),
+      passport = require('passport'),
+      bodyParser = require('body-parser'),
+      FacebookTokenStrategy = require('passport-facebook-token'),
+      io=require("socket.io")(http);
+      
+      app.use(bodyParser.urlencoded({ extended: true }));
+      app.use(bodyParser.json());
 
 mongoose.Promise = global.Promise;
 mongoose.connect("mongodb://localhost/Ludo");
-mongoose.connect("mongodb://ludogame:ludogame123@ds235840.mlab.com:35840/myfirstdb");
+// mongoose.connect("mongodb://ludogame:ludogame123@ds235840.mlab.com:35840/myfirstdb");
 
 passport.use(new FacebookTokenStrategy({
   clientID: "FACEBOOK_APP_ID",
@@ -24,9 +32,39 @@ passport.use(new FacebookTokenStrategy({
 
 app.use(passport.initialize());
 
-let server = app.listen(port, function() {
-	console.log("Express server listening on port " + port)
+
+var AuthController = require('./support/auth/AuthController');
+app.use('/api/auth', AuthController);
+
+
+module.exports = app;
+//Routing Request : http://localhost:port/
+app.get('/',function(request,response){
+  //Telling Browser That The File Provided Is A HTML File
+  response.writeHead(200,{"Content-Type":"text/html"});
+  //Passing HTML To Browser
+  response.write(fs.readFileSync("./public/index.html"));
+  //Ending Response
+  response.end();
+})
+//Routing To Public Folder For Any Static Context
+app.use(express.static(__dirname + '/public'));
+var io = require('socket.io')(http);
+io.sockets.on("connection",function(socket){
+    socket.emit("Start_Chat");
+    //On Event Registar_Name
+    socket.on("Register_Name",function(data){
+       io.sockets.emit("r_name","<strong>"+data+"</strong> Has Joined The Chat");
+       //Now Listening To A Chat Message
+       socket.on("Send_msg",function(data){
+       io.sockets.emit("msg",data);
+       //Now Listening To A Chat Message
+    })
+    })
+  })
+
+
+http.listen(3000, function() {
+	console.log("Express server listening on port : 3000" );
 });
-
-
 

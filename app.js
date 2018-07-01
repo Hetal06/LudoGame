@@ -1,13 +1,13 @@
-const express = require('express');
-    app = express();
-    db = require('./db');
+// const express = require('express');
+//     app = express();
+//     db = require('./db');
 
     
-var UserController = require('./support/user/UserController');
+// var UserController = require('./support/user/UserController');
 
-app.use('/users', UserController);
+// app.use('/users', UserController);
 
-var AuthController = require('./support/auth/AuthController');
-app.use('/api/auth', AuthController);
+// var AuthController = require('./support/auth/AuthController');
+// app.use('/api/auth', AuthController);
 
-module.exports = app;
+// module.exports = app;
