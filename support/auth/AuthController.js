@@ -18,7 +18,6 @@ router.post("/register", function(req, res) {
   console.log("register api call", hashedPassword);
   User.create(
     {
-      userId:req.body.userId, 
       userName: req.body.userName,
       password: hashedPassword,
       email: req.body.email,
@@ -192,7 +191,11 @@ router.get("/me", VerifyToken, function(req, res, next) {
         return res.status(500).send("There was a problem finding the user.");
       if (!user) return res.status(404).send("No user found.");
 
-      res.status(200).send(user);
+      res.status(200).send({
+        auth:true,
+        message:"You get successfull user.",
+        user
+      });
     });
   });
 });
