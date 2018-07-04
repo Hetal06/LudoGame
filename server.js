@@ -40,7 +40,8 @@ app.use('/api/auth', AuthController);
 
 
 module.exports = app;
-// //Routing Request : http://localhost:port/
+
+//Routing Request : http://localhost:port/
 // app.get('/',function(request,response){
 //   //Telling Browser That The File Provided Is A HTML File
 //   response.writeHead(200,{"Content-Type":"text/html"});
@@ -51,7 +52,7 @@ module.exports = app;
 // })
 // //Routing To Public Folder For Any Static Context
 // app.use(express.static(__dirname + '/public'));
-// // var io = require('socket.io')(https);
+// var io = require('socket.io').listen(app.listen(port));
 // io.sockets.on("connection",function(socket){
 //     socket.emit("Start_Chat");
 //     //On Event Registar_Name

@@ -1,5 +1,5 @@
 const express = require("express");
-const app=express();
+const app = express();
 const router = express.Router();
 const bodyParser = require("body-parser");
 const User = require("../user/User");
@@ -9,6 +9,7 @@ const appConfig = require("../config/appConfig");
 const VerifyToken = require("./VerifyToken");
 const passport = require("passport");
 const chalk = require("chalk");
+const http = require("http");
 
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
@@ -23,7 +24,7 @@ router.post("/register", function(req, res) {
       email: req.body.email,
       contactNo: req.body.contactNo,
       firstName: req.body.firstName,
-      lastName: req.body.lastName,
+      lastName: req.body.lastName
       // spinId: req.body.spinId,
       // videoId: req.body.videoId,
       // coinId: req.body.coinId
@@ -31,25 +32,23 @@ router.post("/register", function(req, res) {
     function(err, user) {
       if (err)
         return res.status(500).json({
-          status:"Error",
-          auth:false,
-          userId:null,
+          status: "Error",
+          auth: false,
+          userId: null,
           message: "There was a problem registering the user.",
           user
         });
-        var token=user._id;
+      var token = user._id;
       res.status(200).send({
-        status:"Success",
+        status: "Success",
         auth: true,
         userId: token,
-        message:"You are successfull register",
-         user
+        message: "You are successfull register",
+        user
       });
-     
     }
   );
 });
-
 
 router.get("/getAll", function(req, res) {
   User.find({}, function(err, register) {
@@ -58,24 +57,7 @@ router.get("/getAll", function(req, res) {
   });
 });
 
-
-
-  
-// router.post("/login", function(req, res) {
-//   User.findOne({ email: req.body.email }, function(err, user) {
-//     if (err) return res.status(500).send("Error on the server.");
-//     if (!user) return res.status(404).send("No user found.");
-//     var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
-//     if (!passwordIsValid)
-//       return res.status(401).send({ auth: false, token: null });
-//     var token = jwt.sign({ id: user._id }, appConfig.secret, {
-//       expiresIn: 86400 // expires in 24 hours
-//     });
-//     res.status(200).send({ auth: true, token: token });
-//   });
-// });
-
-router.post("/login", function(req, res,next) {
+router.post("/login", function(req, res, next) {
   let requestedValues = req.body;
   if (!requestedValues) {
     console.log("enter isobject");
@@ -88,8 +70,8 @@ router.post("/login", function(req, res,next) {
       code: 403,
       status: "Error",
       message: "No appropriate data available for authenticating user",
-      auth:false,
-      token:null
+      auth: false,
+      token: null
     });
     return;
   } else {
@@ -116,7 +98,7 @@ router.post("/login", function(req, res,next) {
             payload.email = user.email;
             payload.email = user.email;
             // console.log("Plain Obj test ",_.isPlainObject(payload));
-            let token = jwt.sign({id:user._id}, appConfig.secret, {
+            let token = jwt.sign({ id: user._id }, appConfig.secret, {
               expiresIn: 1440 * 60 * 30 // expires in 1440 minutes/1 day
             });
             console.log(chalk.green("### Authorised User"));
@@ -125,8 +107,24 @@ router.post("/login", function(req, res,next) {
               status: "Success",
               message: "Authorised User!",
               auth: true,
-              token:token
+              token: token
             });
+
+            // var io = require("socket.io")();
+            // var socketioJwt = require("socketio-jwt");
+
+            // io.sockets
+            //   .on(
+            //     "connection",
+            //     socketioJwt.authorize({
+            //       secret: "SECRET_KEY",
+            //       timeout: 15000 // 15 seconds to send the authentication message
+            //     })
+            //   )
+            //   .on("authenticated", function(socket) {
+            //     //this socket is authenticated, we are good to handle more events from it.
+            //     console.log("hello! " + socket.decoded_token.name);
+            //   });
             // res.status(200).send({ auth: true, token: token });
             token = null;
             return;
@@ -137,8 +135,8 @@ router.post("/login", function(req, res,next) {
               code: 403,
               status: "Error",
               message: "Unauthorised Login! Enter valid Credentials",
-              auth:false,
-              token:null
+              auth: false,
+              token: null
             });
             return;
           }
@@ -150,41 +148,140 @@ router.post("/login", function(req, res,next) {
             code: 404,
             status: "Error",
             message: "Invalid Credentials! Try Again",
-            auth:false,
-            token:null
+            auth: false,
+            token: null
           });
           return;
         }
       });
     } else {
       console.log("enter else 3...........");
-      res
-        .status(403)
-        .json({
-          code: 403,
-          status: "Error",
-          message: "Required Fields are missing!",
-          auth:false,
-          token:null
-        });
+      res.status(403).json({
+        code: 403,
+        status: "Error",
+        message: "Required Fields are missing!",
+        auth: false,
+        token: null
+      });
     }
   }
+});
+
+router.put("/addCoin", VerifyToken, function(req, res) {
+  
+  var token = req.headers["x-access-token"];
+  console.log("token is", token);
+  if (!token)
+    return res.status(401).send({
+      auth: false,
+      message: "No token provided."
+    });
+  jwt.verify(token, appConfig.secret, function(err, decoded) {
+    
+    if (err)
+      return res
+        .status(500)
+        .send({ auth: false, message: "Failed to authenticate token." });
+
+    console.log("decode is", decoded);
+
+    User.findById(req.userId, { password: 0 }, function(err, user) {
+      if (err)
+        return res.status(500).send("There was a problem finding the user.");
+      if (!user) return res.status(404).send("No user found.");
+      // console.log("user is ...///",user.coinId);
+      let oldCoin = user.coinId;
+      console.log("user is......1", oldCoin);
+      let newCoin = req.body.coinId;
+      console.log("user is......2", newCoin);
+      let updateCoin= newCoin+oldCoin;
+      console.log("user is......3", updateCoin);
+      User.findOneAndUpdate(req.userId , newCoin , {new: true},function(err,user){
+        if (err) throw err;
+     
+      user.coinId = updateCoin;
+       
+      user.save(function(err) {
+          if (err) throw err;
+          console.log('user coin updated successfully',user);
+          res.status(200).json({
+            "auth":true,
+            "message": "user coin updated successfully",
+            "user":user
+          });
+      });
+      });
+      
+    });
+  });
+});
+
+router.put("/subCoin", VerifyToken, function(req, res) {
+  
+  var token = req.headers["x-access-token"];
+  console.log("token is", token);
+  if (!token)
+    return res.status(401).send({
+      auth: false,
+      message: "No token provided."
+    });
+  jwt.verify(token, appConfig.secret, function(err, decoded) {
+    
+    if (err)
+      return res
+        .status(500)
+        .send({ auth: false, message: "Failed to authenticate token." });
+
+    console.log("decode is", decoded);
+
+    User.findById(req.userId, { password: 0 }, function(err, user) {
+      if (err)
+        return res.status(500).send("There was a problem finding the user.");
+      if (!user) return res.status(404).send("No user found.");
+      // console.log("user is ...///",user.coinId);
+      let oldCoin = user.coinId;
+      console.log("user is......1", oldCoin);
+      let newCoin = req.body.coinId;
+      console.log("user is......2", newCoin);
+      let updateCoin= oldCoin-newCoin;
+      console.log("user is......3", updateCoin);
+      User.findOneAndUpdate(req.userId , newCoin , {new: true},function(err,user){
+        if (err) throw err;
+     
+      user.coinId = updateCoin;
+       
+      user.save(function(err) {
+          if (err) throw err;
+          console.log('user coin updated successfully',user);
+          res.status(200).json({
+            "auth":true,
+            "message": "user coin updated successfully",
+            "user":user
+          });
+      });
+      });
+      
+    });
+  });
 });
 
 
 router.get("/me", VerifyToken, function(req, res, next) {
   var token = req.headers["x-access-token"];
-  console.log("token is",token);
+  console.log("token is", token);
   if (!token)
-    return res.status(401).send({ auth: false, message: "No token provided." });
-  console.log("token is",token);
+    return res.status(401).send({
+      auth: false,
+      message: "No token provided."
+    });
+  console.log("token is", token);
   jwt.verify(token, appConfig.secret, function(err, decoded) {
     if (err)
       return res
         .status(500)
         .send({ auth: false, message: "Failed to authenticate token." });
 
-        console.log("decode is",decoded);
+    console.log("decode is", decoded);
 
     User.findById(req.userId, { password: 0 }, function(err, user) {
       if (err)
@@ -192,8 +289,8 @@ router.get("/me", VerifyToken, function(req, res, next) {
       if (!user) return res.status(404).send("No user found.");
 
       res.status(200).send({
-        auth:true,
-        message:"You get successfull user.",
+        auth: true,
+        message: "You get successfull user.",
         user
       });
     });
