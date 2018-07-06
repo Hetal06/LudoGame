@@ -182,15 +182,10 @@ router.put("/addCoin", VerifyToken, function(req, res) {
         .status(500)
         .send({ auth: false, message: "Failed to authenticate token." });
 
-    console.log("decode is", decoded);
-
     User.findById(req.userId, { password: 0 }, function(err, user) {
       let oldCoin = user.coinId;
-      console.log("oldCoin is......1", oldCoin);
       let newCoin = req.body.coinId;
-      console.log("newCoin is......2", newCoin);
       let updateCoin = oldCoin - -newCoin;
-      console.log("updateCoin is......3", updateCoin);
       if (err)
         return res.status(500).send({
           auth: false,
@@ -203,7 +198,6 @@ router.put("/addCoin", VerifyToken, function(req, res) {
         err,
         user
       ) {
-        console.log("user is ....", user.coinId);
         user.coinId = updateCoin;
         if (err)
           return res.status(500).send({
@@ -233,28 +227,21 @@ router.put("/addCoin", VerifyToken, function(req, res) {
 
 router.put("/subCoin", VerifyToken, function(req, res) {
   var token = req.headers["x-access-token"];
-  console.log("token is", token);
   if (!token)
     return res.status(401).send({
       auth: false,
       message: "No token provided."
     });
-  console.log("token is", token);
   jwt.verify(token, appConfig.secret, function(err, decoded) {
     if (err)
       return res
         .status(500)
         .send({ auth: false, message: "Failed to authenticate token." });
 
-    console.log("decode is", decoded);
-
     User.findById(req.userId, { password: 0 }, function(err, user) {
       let oldCoin = user.coinId;
-      console.log("oldCoin is......1", oldCoin);
       let newCoin = req.body.coinId;
-      console.log("newCoin is......2", newCoin);
       let updateCoin = oldCoin - newCoin;
-      console.log("updateCoin is......3", updateCoin);
       if (err)
         return res.status(500).send({
           auth: false,
@@ -267,7 +254,6 @@ router.put("/subCoin", VerifyToken, function(req, res) {
         err,
         user
       ) {
-        console.log("user is ....", user.coinId);
         user.coinId = updateCoin;
         if (err)
           return res.status(500).send({
@@ -289,34 +275,26 @@ router.put("/subCoin", VerifyToken, function(req, res) {
           });
         });
       });
-
-      // console.log("user get", user);
     });
   });
 });
 
 router.get("/me", VerifyToken, function(req, res, next) {
   var token = req.headers["x-access-token"];
-  console.log("token is", token);
   if (!token)
     return res.status(401).send({
       auth: false,
       message: "No token provided."
     });
-  console.log("token is", token);
   jwt.verify(token, appConfig.secret, function(err, decoded) {
     if (err)
       return res
         .status(500)
         .send({ auth: false, message: "Failed to authenticate token." });
-
-    console.log("decode is", decoded);
-
     User.findById(req.userId, { password: 0 }, function(err, user) {
       if (err)
         return res.status(500).send("There was a problem finding the user.");
       if (!user) return res.status(404).send("No user found.");
-
       res.status(200).send({
         auth: true,
         message: "You get successfull user.",
