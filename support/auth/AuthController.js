@@ -168,7 +168,6 @@ router.post("/login", function(req, res, next) {
 });
 
 router.put("/addCoin", VerifyToken, function(req, res) {
-  
   var token = req.headers["x-access-token"];
   console.log("token is", token);
   if (!token)
@@ -176,8 +175,8 @@ router.put("/addCoin", VerifyToken, function(req, res) {
       auth: false,
       message: "No token provided."
     });
+  console.log("token is", token);
   jwt.verify(token, appConfig.secret, function(err, decoded) {
-    
     if (err)
       return res
         .status(500)
@@ -186,38 +185,53 @@ router.put("/addCoin", VerifyToken, function(req, res) {
     console.log("decode is", decoded);
 
     User.findById(req.userId, { password: 0 }, function(err, user) {
-      if (err)
-        return res.status(500).send("There was a problem finding the user.");
-      if (!user) return res.status(404).send("No user found.");
-      // console.log("user is ...///",user.coinId);
       let oldCoin = user.coinId;
-      console.log("user is......1", oldCoin);
+      console.log("oldCoin is......1", oldCoin);
       let newCoin = req.body.coinId;
-      console.log("user is......2", newCoin);
-      let updateCoin= newCoin+oldCoin;
-      console.log("user is......3", updateCoin);
-      User.findOneAndUpdate(req.userId , newCoin , {new: true},function(err,user){
-        if (err) throw err;
-     
-      user.coinId = updateCoin;
-       
-      user.save(function(err) {
-          if (err) throw err;
-          console.log('user coin updated successfully',user);
-          res.status(200).json({
-            "auth":true,
-            "message": "user coin updated successfully",
-            "user":user
+      console.log("newCoin is......2", newCoin);
+      let updateCoin = oldCoin - -newCoin;
+      console.log("updateCoin is......3", updateCoin);
+      if (err)
+        return res.status(500).send({
+          auth: false,
+          message: "Something went wrong.",
+          user
+        });
+      if (!user) return res.status(404).send("No user found.");
+
+      User.findByIdAndUpdate(req.userId, updateCoin, { new: true }, function(
+        err,
+        user
+      ) {
+        console.log("user is ....", user.coinId);
+        user.coinId = updateCoin;
+        if (err)
+          return res.status(500).send({
+            auth: false,
+            message: "Something went wrong.",
+            user
           });
+        user.save(function(err, user) {
+          if (err)
+            return res.status(500).send({
+              auth: false,
+              message: "Something went wrong.",
+              user
+            });
+          res.status(200).send({
+            auth: true,
+            message: "You get successfull user.",
+            user
+          });
+        });
       });
-      });
-      
+
+      // console.log("user get", user);
     });
   });
 });
 
 router.put("/subCoin", VerifyToken, function(req, res) {
-  
   var token = req.headers["x-access-token"];
   console.log("token is", token);
   if (!token)
@@ -225,8 +239,8 @@ router.put("/subCoin", VerifyToken, function(req, res) {
       auth: false,
       message: "No token provided."
     });
+  console.log("token is", token);
   jwt.verify(token, appConfig.secret, function(err, decoded) {
-    
     if (err)
       return res
         .status(500)
@@ -235,36 +249,51 @@ router.put("/subCoin", VerifyToken, function(req, res) {
     console.log("decode is", decoded);
 
     User.findById(req.userId, { password: 0 }, function(err, user) {
-      if (err)
-        return res.status(500).send("There was a problem finding the user.");
-      if (!user) return res.status(404).send("No user found.");
-      // console.log("user is ...///",user.coinId);
       let oldCoin = user.coinId;
-      console.log("user is......1", oldCoin);
+      console.log("oldCoin is......1", oldCoin);
       let newCoin = req.body.coinId;
-      console.log("user is......2", newCoin);
-      let updateCoin= oldCoin-newCoin;
-      console.log("user is......3", updateCoin);
-      User.findOneAndUpdate(req.userId , newCoin , {new: true},function(err,user){
-        if (err) throw err;
-     
-      user.coinId = updateCoin;
-       
-      user.save(function(err) {
-          if (err) throw err;
-          console.log('user coin updated successfully',user);
-          res.status(200).json({
-            "auth":true,
-            "message": "user coin updated successfully",
-            "user":user
+      console.log("newCoin is......2", newCoin);
+      let updateCoin = oldCoin - newCoin;
+      console.log("updateCoin is......3", updateCoin);
+      if (err)
+        return res.status(500).send({
+          auth: false,
+          message: "Something went wrong.",
+          user
+        });
+      if (!user) return res.status(404).send("No user found.");
+
+      User.findByIdAndUpdate(req.userId, updateCoin, { new: true }, function(
+        err,
+        user
+      ) {
+        console.log("user is ....", user.coinId);
+        user.coinId = updateCoin;
+        if (err)
+          return res.status(500).send({
+            auth: false,
+            message: "Something went wrong.",
+            user
           });
+        user.save(function(err, user) {
+          if (err)
+            return res.status(500).send({
+              auth: false,
+              message: "Something went wrong.",
+              user
+            });
+          res.status(200).send({
+            auth: true,
+            message: "You get successfull user.",
+            user
+          });
+        });
       });
-      });
-      
+
+      // console.log("user get", user);
     });
   });
 });
-
 
 router.get("/me", VerifyToken, function(req, res, next) {
   var token = req.headers["x-access-token"];
