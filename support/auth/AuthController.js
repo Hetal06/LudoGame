@@ -167,7 +167,7 @@ router.post("/login", function(req, res, next) {
   }
 });
 
-router.put("/addCoin", VerifyToken, function(req, res) {
+router.post("/addCoin", VerifyToken, function(req, res) {
   var token = req.headers["x-access-token"];
   console.log("token is", token);
   if (!token)
@@ -184,8 +184,13 @@ router.put("/addCoin", VerifyToken, function(req, res) {
 
     User.findById(req.userId, { password: 0 }, function(err, user) {
       let oldCoin = user.coinId;
+      console.log("old coin",oldCoin);
+      
       let newCoin = req.body.coinId;
-      let updateCoin = oldCoin - -newCoin;
+      console.log("new coin",newCoin);
+
+      let updateCoin = oldCoin - (-newCoin);
+      console.log("update coin",updateCoin);
       if (err)
         return res.status(500).send({
           auth: false,
@@ -225,7 +230,7 @@ router.put("/addCoin", VerifyToken, function(req, res) {
   });
 });
 
-router.put("/subCoin", VerifyToken, function(req, res) {
+router.post("/subCoin", VerifyToken, function(req, res) {
   var token = req.headers["x-access-token"];
   if (!token)
     return res.status(401).send({
